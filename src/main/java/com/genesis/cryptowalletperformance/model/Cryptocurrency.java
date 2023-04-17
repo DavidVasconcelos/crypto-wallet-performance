@@ -5,7 +5,8 @@ import java.util.Optional;
 
 public enum Cryptocurrency {
     BTC("bitcoin"),
-    ETH("ethereum");
+    ETH("ethereum"),
+    DOGE("dogecoin");
 
     public final String currency;
 
