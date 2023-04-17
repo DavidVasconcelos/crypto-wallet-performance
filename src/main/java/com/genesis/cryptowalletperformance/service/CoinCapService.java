@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,15 +28,22 @@ public class CoinCapService {
     @Autowired
     private CoinCapClient coinCapClient;
 
-    private static int threadIndex = 0;
-    private static final ThreadFactory coinCapThreadFactory = r -> new Thread(r, "CoinCap-" + threadIndex++);
+    private int threadIndex = 0;
+    private final ThreadFactory coinCapThreadFactory = r -> new Thread(r, "CoinCap-" + threadIndex++);
 
     public List<CryptoAsset> getCryptoAssets(List<Asset> assets) {
         var coinCapExecutor = Executors.newFixedThreadPool(assets.size(), coinCapThreadFactory);
-        log.info("Now is {}", LocalDateTime.now());
+        var now = LocalDateTime.now();
+        log.info("Now is {}", now);
         var coinCapTasks = getTasks(assets);
         var cryptoAssets = new ArrayList<CryptoAsset>();
         var coinCapCF = getCoinCapCompletableFuture(coinCapExecutor, coinCapTasks, cryptoAssets);
+        while (!coinCapCF.isDone()) {
+            if (Duration.between(now, LocalDateTime.now()).getSeconds() > 10) {
+                log.info("(program hangs, waiting for some of the previous requests to finish)");
+                now = LocalDateTime.now();
+            }
+        }
         coinCapCF.join();
         coinCapExecutor.shutdown();
         return cryptoAssets;
@@ -57,7 +65,7 @@ public class CoinCapService {
         };
     }
 
-    private static CompletableFuture<Boolean> getCoinCapCompletableFuture(ExecutorService coinCapExecutor,
+    private CompletableFuture<Boolean> getCoinCapCompletableFuture(ExecutorService coinCapExecutor,
                                                                           List<Supplier<CryptoAsset>> coinCapTasks,
                                                                           ArrayList<CryptoAsset> cryptoAssets) {
         var coinCapCFS = coinCapTasks
@@ -68,7 +76,7 @@ public class CoinCapService {
                                 return cryptoAsset;
                             } else {
                                 log.error("An error occurred with CoinCap integration, error message: {}"
-                                        ,exception.getMessage());
+                                        , exception.getMessage());
                                 throw new CoinCapIntegrationException("Error while retrieving crypto asset from CoinCap");
                             }
                         })
