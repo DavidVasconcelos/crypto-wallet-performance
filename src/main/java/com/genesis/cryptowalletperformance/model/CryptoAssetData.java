@@ -2,12 +2,14 @@ package com.genesis.cryptowalletperformance.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
+@Builder
 public class CryptoAssetData {
 
     @JsonProperty("id")

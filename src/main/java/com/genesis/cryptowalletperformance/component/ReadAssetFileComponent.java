@@ -1,6 +1,7 @@
 package com.genesis.cryptowalletperformance.component;
 
 import com.genesis.cryptowalletperformance.model.Asset;
+import com.genesis.cryptowalletperformance.model.Cryptocurrency;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ public class ReadAssetFileComponent {
                     withSkipLines(HEADERS_LINE).
                     build();
             assets = reader.readAll().stream().map(data -> {
-                Asset csvObject = new Asset();
+                var csvObject = Asset.builder().build();
                 csvObject.setSymbol(data[0]);
                 csvObject.setQuantity(new BigDecimal(data[1]));
                 csvObject.setPrice(new BigDecimal(data[2]));

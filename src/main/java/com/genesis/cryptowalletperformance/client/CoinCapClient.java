@@ -5,7 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "coin-cap", url = "https://api.coincap.io/v2/")
+@FeignClient(name = "coin-cap", url = "${coin-cap.url}")
 public interface CoinCapClient {
 
     @GetMapping("/assets/{id}?interval=d1&start=1617753600000&end=1617753601000")
