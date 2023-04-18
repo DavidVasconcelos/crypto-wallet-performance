@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
-public class CryptoPerformance {
+public class AssetPerformance {
     private BigDecimal total;
     private String bestAsset;
     private BigDecimal bestPerformance;
