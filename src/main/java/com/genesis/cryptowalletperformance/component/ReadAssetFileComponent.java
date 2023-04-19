@@ -1,7 +1,6 @@
 package com.genesis.cryptowalletperformance.component;
 
 import com.genesis.cryptowalletperformance.model.Asset;
-import com.genesis.cryptowalletperformance.model.Cryptocurrency;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +20,7 @@ public class ReadAssetFileComponent {
 
     private static final Integer HEADERS_LINE = 1;
 
-    public List<Asset> parse(File file) {
+    public List<Asset> parseAssetFile(File file) {
         List<Asset> assets = new ArrayList<>();
         try {
             var reader = new CSVReaderBuilder(new FileReader(file)).

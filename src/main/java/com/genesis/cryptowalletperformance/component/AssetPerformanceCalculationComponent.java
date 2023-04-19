@@ -10,15 +10,18 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Slf4j
 public class AssetPerformanceCalculationComponent {
 
-    public AssetPerformance calculate(List<Asset> assets, List<CryptoAssetData> cryptoAssets) {
+    public AssetPerformance calculate(List<Asset> assets, Map<String, CryptoAssetData> cryptoAssets) {
         var assetPerformance = initAssetPerformance();
         assets.forEach(asset -> {
-            var cryptoAsset = getCryptoAsset(cryptoAssets, asset);
+            var cryptoAsset = Optional.ofNullable(cryptoAssets.get(asset.getSymbol()))
+                    .orElseThrow(() -> new CryptoAssetNotFoundException("Crypto asset not found"));
             calculateTotalAssetPerformance(assetPerformance, asset, cryptoAsset);
             var percentPerformance = calculatePercentPerformance(asset, cryptoAsset);
             if (percentPerformance.compareTo(assetPerformance.getBestPerformance()) > 0 ||
@@ -43,15 +46,6 @@ public class AssetPerformanceCalculationComponent {
                 .worstPerformance(BigDecimal.ZERO)
                 .build();
     }
-
-    private CryptoAssetData getCryptoAsset(List<CryptoAssetData> cryptoAssets, Asset asset) {
-        return cryptoAssets
-                .stream()
-                .filter(crypto -> crypto.getSymbol().equals(asset.getSymbol()))
-                .findAny()
-                .orElseThrow(() -> new CryptoAssetNotFoundException("Crypto asset not found"));
-    }
-
     private void calculateTotalAssetPerformance(AssetPerformance assetPerformance, Asset asset, CryptoAssetData cryptoAsset) {
         assetPerformance.setTotal(assetPerformance.getTotal()
                 .add(cryptoAsset.getPriceUsd().multiply(asset.getQuantity()))
